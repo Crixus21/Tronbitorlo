@@ -9,8 +9,6 @@ include_once 'header.php';
     {
     
     ?>
-    
-
     <div class="center-content regisztracio">
         <article>
             <div class="cikkely">
@@ -50,7 +48,20 @@ include_once 'header.php';
 ?>
                     <input type="hidden" name="feladat" value="<?php if($charchange) { echo 'modositas'; } else { echo 'regisztracio'; }?>">
                     <input type="submit" name="elkuld" value="<?php echo $gombFelirat; ?>">
+<?php
+                    if($charchange)
+                    {
+?>
+                    
+                    <input type="hidden" form="torlesForm" name="feladat" value="kartorles">
+                    <input type="submit" form="torlesForm" name="kartorles" value="Karakter törlése" style="background-color: darkred;">
+                    
+<?php
+                    }
+?>
+                    
                 </form>
+                <form id="torlesForm" name="torlesForm" method="post" onsubmit="return confirm('Biztosan törölni szeretnéd a karaktert?')" style="display:none;"></form>
                 <div id="charImgSelect">
                 <h3>Válassz karakterképet:</h3>
                 <div id="radioContainer">
@@ -58,22 +69,21 @@ include_once 'header.php';
 <?php
                 foreach ($fajlok as $i => $fajl) {
                     
-
+                    if($fajl !== 'tsz.jpg')
+                    {
 ?>
                     <input id="radio<?php echo $i; ?>" type="radio" name="charimg" value="<?php echo $fajl; ?>" form="regisztracioForm" <?php if($i === 0 && !isset($feladat) && !loggedIn() || loggedIn() && $charchange && $fajl === $_SESSION['charimg']) { echo 'checked';} ?>>
                     <label for="radio<?php echo $i; ?>"><img src="images/avatar/<?php echo $fajl?>" alt="Karakter kep"></label>
                     
 <?php
+                    }
 }
 ?>                    
                 </div>
                 </div>
                 </div>
         </article>
-        
     </div>
-    
-    
 </div>
 <?php 
     }

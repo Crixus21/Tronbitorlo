@@ -49,47 +49,35 @@
             <div class="chartable karakter">
               <div class="mychar">
                   <h2>Karakterlap</h2>
-                  <img class="img-avatar" src="Images/Avatar/<?php echo $charcharimg; ?>">
+                  <img class="img-avatar" src="images/Avatar/<?php echo $charcharimg; ?>">
                 <span class="charname"><?php echo $charknev?></span>
               </div>
-                
                 <h4 class="weeklyprogress">Játékban eltöltött idő ezen a héten:</h4>
                 <p class="weeklyprogress"><span class="chartime"><?php echo $weeklyProgress; ?></span></p>
-                <h4 style="margin:1rem 0 0;">Karaktertörténet:</h4>
-                <p class="charstory"><?php echo $charktortenet?></p>
-                
 <?php
+                if(!empty($charktortenet))
+                {
+?>  
+                <h4 style="margin:1rem 0 0;">Karaktertörténet:</h4>
+              
+                <p class="charstory"><?php echo $charktortenet?></p>
+<?php
+                }
                     if(loggedIn() && $charknev === $_SESSION['knev'])
             {
 ?>
                 <input type="submit" form="charChange" name="charChange" value="Módosítás">
                 <form id="charChange" style="display:none;" method="post" action="karaktermod.php">
                     <input type="hidden" name="feladat" value="charchange">
-                    
                 </form>
                 
 <?php
             }
 ?>
             </div>
-            
         </div>
-        
-        
-        
     </article>
-    
-    
-    
 </div>
-
-
-
-
-
-
-
-
 <?php
         }
     }

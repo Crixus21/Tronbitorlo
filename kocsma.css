@@ -1,0 +1,96 @@
+.center-content.kocsma {
+    max-width:100%;
+    flex:100%;
+}
+
+.kocsma-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 3px 3px 5px rgba(172, 167, 107, 0.945);
+    padding: 2em;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+#kocsmaImg1 {
+    z-index: 0;
+    position: absolute;
+    left:20px;
+    top:20px;
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+}
+
+#kocsmaImg2 {
+    z-index: 0;
+    position: absolute;
+    right:20px;
+    top:20px;
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 40rem;
+    height:30rem;
+    border: var(--border-color) 2px solid;
+    border-radius: 5px;
+    background-color: rgb(210,210,210);
+    padding: 1rem;
+    z-index: 1;
+}
+
+#wrapper h2 {
+    margin: .2rem;
+    align-self: flex-start;
+    font-family: bitifont;
+}
+
+#chatbox {
+    width:100%;
+    background: white;
+    border: grey 1px solid;
+    border-radius: 3px;
+    margin: 0 0 1rem;
+    flex: 1;
+    padding: .2rem;
+    overflow-y: scroll;
+}
+
+#kocsmaForm {
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+#kocsmaComment {
+    flex: 1;
+}
+
+#kocsmaForm input[type='text'] {
+    border-radius: 3px;
+    border: grey 1px solid;
+    padding: .5rem;
+}
+
+#kocsmaForm input[type='text']:focus {
+    outline: 0;
+}
+
+@media screen and (max-width:1000px) {
+    #kocsmaImg1, #kocsmaImg2 {
+        display: none;
+    }
+}

@@ -16,11 +16,39 @@
         return isset($_SESSION['uid']);
     }
     
+    function is_cli()
+    {
+        if ( defined('STDIN') )
+        {
+            return true;
+        }
+
+        if ( php_sapi_name() === 'cli' )
+        {
+            return true;
+        }
+
+        if ( array_key_exists('SHELL', $_ENV) ) {
+            return true;
+        }
+
+        if ( empty($_SERVER['REMOTE_ADDR']) and !isset($_SERVER['HTTP_USER_AGENT']) and count($_SERVER['argv']) > 0) 
+        {
+            return true;
+        } 
+
+        if ( !array_key_exists('REQUEST_METHOD', $_SERVER) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
     function reCaptcha($recaptcha){
         $secret = SECRETKEY;
         $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_SANITIZE_SPECIAL_CHARS);
-
-        $postvars = array("secret"=>$secret, "response"=>$recaptcha, "remoteip"=>$ip);
+        $postvars = array("secret"=>$secret, "response"=>$recaptcha);
         $url = "https://www.google.com/recaptcha/api/siteverify";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -43,8 +71,21 @@
             $newRow = array('jmsgid' => $jmsgid, 'uid' => $uid, 'charmsg' => $charmsg, 'beginDate' => $beginDate);
             $jatekMessages[] = $newRow;
         }
-        
         return $jatekMessages;
+    }
+    
+    function getKocsmaMessages ($dbc) {
+        $kocsmaMessages = array();
+        $sql = "select kmsgid, uid, kocsmamsg, kocsmaDate from kocsma";
+        $result = mysqli_query($dbc, $sql);
+
+        while(list($kmsgid, $uid, $kocsmamsg, $kocsmaDate) = mysqli_fetch_row($result))
+        {
+                    $newRow = array('kmsgid' => $kmsgid, 'uid' => $uid, 'kocsmamsg' => $kocsmamsg, 'kocsmaDate' => $kocsmaDate);
+            $kocsmaMessages[] = $newRow;
+        }
+        
+        return $kocsmaMessages;
     }
     
     function createMessagesJSON ($dbc) {
@@ -63,7 +104,40 @@
             
             return json_encode($returnMessageTable);
         }
-    
-
-
+        
+        function createKocsmaMessagesJSON ($dbc) {
+            $kocsmaMessages = getKocsmaMessages($dbc);
+            $returnKocsmaMessageTable = array();
+            foreach ($kocsmaMessages as $i => $kocsmaMessage)
+            {
+                $sql = 'select knev from userek where uid =' . $kocsmaMessage['uid'];
+                $result = mysqli_query($dbc, $sql);
+                list($knev) = mysqli_fetch_row($result);
+                
+                $tempComment = (object)['knev' => $knev, 'kTime' => $kocsmaMessage['kocsmaDate'], 'kocsmamsg' => $kocsmaMessage['kocsmamsg']];
+                $returnKocsmaMessageTable[] = $tempComment;
+            }
+            
+            return json_encode($returnKocsmaMessageTable);
+            
+        }
+        
+        function randomChars()
+        {
+            $jelszo = '';
+            for ($i = 1; $i < 100; $i++) {
+                $jelszo .= KARAKTEREK[rand(0,mb_strlen(KARAKTEREK)-1)];
+            }
+            return $jelszo;
+        }
+        
+        function emailFejlec()
+        {
+            return 'From:' .  ADMIN_EMAIL . PHP_EOL .
+                   'Reply-To:' .  ADMIN_EMAIL  . PHP_EOL .
+                   'Mime-Version: 1.0' . PHP_EOL .
+                   'Content-type: text/html; charset=UTF-8' . PHP_EOL . 
+                   'X-Priority: 1' . PHP_EOL .
+                   'X-Mailer: ' . phpversion() . PHP_EOL   ;
+        }
 ?>

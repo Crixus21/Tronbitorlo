@@ -5,6 +5,9 @@
 include_once 'functions.php';
 include_once 'const.php';
 
+require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/phpmailer_config.php';
+
     //adatbázis kapcsolat
 
     $dbc = mysqli_connect('localhost', 'root', '', 'tronbitorlo');
@@ -26,15 +29,17 @@ include_once 'const.php';
     $inEmail = filter_input(INPUT_POST, 'inemail', FILTER_SANITIZE_SPECIAL_CHARS);
     $inPassword = filter_input(INPUT_POST, 'inpassword', FILTER_SANITIZE_SPECIAL_CHARS);
     $ginKnev = filter_input(INPUT_GET, 'knev', FILTER_SANITIZE_SPECIAL_CHARS);
+    $aid = filter_input(INPUT_GET, 'aid', FILTER_SANITIZE_SPECIAL_CHARS);
     $recaptcha = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_SANITIZE_SPECIAL_CHARS);
+    $kartorles = filter_input(INPUT_POST, 'kartorles', FILTER_SANITIZE_SPECIAL_CHARS);
+    
     
     $data = json_decode(file_get_contents('php://input'), true);
     if (isset($data))
     {
-        if(isset($data['uid']) && isset($data['comment']))
+        if(isset($data['comment']))
         {
-            $puid = filter_var($data['uid'], FILTER_SANITIZE_SPECIAL_CHARS);
-            $pcomment = filter_var($data['comment'], FILTER_SANITIZE_SPECIAL_CHARS);
+            $pcomment = htmlspecialchars($data['comment']);
         }
         
         $feladat = filter_var($data['feladat'], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -46,10 +51,16 @@ include_once 'const.php';
     
     switch($getUzenet) {
     case 'regsuccess' :
-        $uzenet .= 'Regisztráció sikeres.<br>';
+        $uzenet .= 'Regisztráció sikeres. Az aktiváló levelet elküldtük a megadott e-mail címre.<br>';
         break;
     case 'modsuccess' :
         $uzenet .= 'Adatok módosítása sikeres.<br>';
+        break;
+    case 'modsuccess1' :
+        $uzenet .= 'Adatok módosítása sikeres. Új e-mailed aktiváláshoz elküldtük az aktiváló levelet.<br>';
+        break;
+    case 'delsuccess' :
+        $uzenet .= 'Regisztrációd törlése sikeres.<br>';
         break;
     }
     
@@ -136,18 +147,65 @@ include_once 'const.php';
         
         if(empty($hibauzenet))
         {
-            $sql = "insert into userek (knev, email, jelszo, ktortenet, charimg) values ('$charname','$email','".titkosit($password1)."','$regCharstory', '$charImg')";
+            $charImg = $charImg === 'tsz.jpg' ? '03.jpg' : $charImg;
+            $aid = randomChars();
+            $sql = "insert into userek (knev, email, jelszo, ktortenet, charimg, aid) values ('$charname','$email','".titkosit($password1)."','$regCharstory', '$charImg', '".titkosit($aid)."')";
             if(mysqli_query($dbc, $sql))
             {
+                
+                $targy = 'Regisztráció aktiválása';
+                $szoveg = '<h1>Kedves '.$charname.'!</h1> <p>Regisztrációd aktiválásához kattints az alábbi linkre, vagy ha az nem működik, akkor az alábbi hivatkozást másold a böngésző címsorába!</p><p><a href="'.PROTOCOL.'://'.DOMAIN.'/aktivalas.php?aid='.titkosit($aid).'">Regisztráció aktiválása</a></p><p>'.PROTOCOL.'://'.DOMAIN.'/aktivalas.php?aid='.titkosit($aid).'</p>';
+                    
+                
+                $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+                // Server settings
+                $mail->SMTPDebug = PHPMAILER_DEBUG_LEVEL;
+                $mail->isSMTP();
+                $mail->Host = SMTP_HOSTNAME;
+                $mail->SMTPAuth = true;
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                $mail->SMTPSecure = 'ssl';                            
+                $mail->Port = 465;
+                $mail->CharSet = MAIL_CHARSET;
+                $mail->Encoding = MAIL_ENCODING;
+                $mail->isHTML(true);
+
+                // Recipients
+                $mail->setFrom('nordenf21@gmail.com', 'Tronbitorlo');
+                $mail->addAddress($email, $charname);
+
+                // Content
+                $mail->Subject = $targy;
+                $mail->Body    = <<<EOT
+                $szoveg
+                EOT;
+
+                $mail->send();
+
+                
+                    file_put_contents('email-reg.html', $szoveg);
+//                    mail($email, $targy, $szoveg, emailFejlec());
+                
+                
                 header("Location: index.php?uzenet=regsuccess");
                 exit();
             }
         }
     }
     
+    
+    if(aktFajlnev() === 'aktivalas' && isset($aid))
+    {
+        $sql = "update userek set aid = null where aid = '".$aid."'";
+        mysqli_query($dbc, $sql);
+
+        $uzenet = 'Regisztráció aktiválása sikeres! Most már be lehet jelentkezni.';
+    }
+    
     if($feladat === 'login')
     {
-        $sql = "select uid, knev, email, ktortenet, charimg from userek where email = '$inEmail' and jelszo = '".titkosit($inPassword)."'";
+        $sql = "select uid, knev, email, ktortenet, charimg from userek where email = '$inEmail' and jelszo = '".titkosit($inPassword)."' and isnull(aid)";
         $result = mysqli_query($dbc, $sql);
         list($_SESSION['uid'],$_SESSION['knev'], $_SESSION['email'], $_SESSION['ktortenet'], $_SESSION['charimg']) = mysqli_fetch_row($result);
         
@@ -158,8 +216,24 @@ include_once 'const.php';
         
     }
     
+    if($feladat === 'kartorles')
+    {
+        $sql = "delete from jatekter where uid = " . $_SESSION['uid'];
+        mysqli_query($dbc, $sql);
+        $sql = "delete from kocsma where uid = " . $_SESSION['uid'];
+        mysqli_query($dbc, $sql);
+        $sql = "delete from userek where uid = " . $_SESSION['uid'];
+        mysqli_query($dbc, $sql);
+        
+        
+        header("Location: index.php?uzenet=delsuccess&feladat=logout");
+        exit();
+        
+    }
+    
     if($feladat === 'modositas')
     {
+        
         if($email !== $_SESSION['email'])
         {
             $sql = "select count(*) from userek where email = '$email'";
@@ -191,7 +265,7 @@ include_once 'const.php';
         {
             $hibauzenet .= 'Hiba! A két új jelszó nem azonos.<br>';
         } 
-        
+
         if($charname !== $_SESSION['knev'])
         {
             $sql = "select count(*) from userek where knev = '$charname'";
@@ -209,19 +283,66 @@ include_once 'const.php';
         {
             $hibauzenet .= 'Hiba! Nem megfelelő jelszó.';
         }
-        
+
         if(empty($hibauzenet))
         {
+
+            $charImg = $charImg === 'tsz.jpg' ? '03.jpg' : $charImg;
             $sqlKieg = (!empty($password1)) ? ", jelszo = '".titkosit($password1)."'" : '';
-            
+
             $sql = "update userek set knev = '$charname', email = '$email', ktortenet = '$regCharstory', charimg = '$charImg'" . $sqlKieg . "where uid = " . $_SESSION['uid'];
             mysqli_query($dbc, $sql);
-            
+
+            if($email !== $_SESSION['email'])
+            {
+
+                $aid = randomChars();
+                        $sql = "update userek set aid = '". titkosit($aid) ."' where uid = " . $_SESSION['uid'];
+                mysqli_query($dbc, $sql);
+
+                $targy = 'Új e-mail aktiválása';
+                $szoveg = '<h1>Kedves '.$charname.'!</h1> <p>Új e-mailed aktiválásához kattints az alábbi linkre, vagy ha az nem működik, akkor az alábbi hivatkozást másold a böngésző címsorába!</p><p><a href="'.PROTOCOL.'://'.DOMAIN.'/aktivalas.php?aid='.titkosit($aid).'">Regisztráció aktiválása</a></p><p>'.PROTOCOL.'://'.DOMAIN.'/aktivalas.php?aid='.titkosit($aid).'</p>';
+                    
+                
+                $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+                // Server settings
+                $mail->SMTPDebug = PHPMAILER_DEBUG_LEVEL;
+                $mail->isSMTP();
+                $mail->Host = SMTP_HOSTNAME;
+                $mail->SMTPAuth = true;
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                $mail->SMTPSecure = 'ssl';                            
+                $mail->Port = 465;
+                $mail->CharSet = MAIL_CHARSET;
+                $mail->Encoding = MAIL_ENCODING;
+                $mail->isHTML(true);
+
+                // Recipients
+                $mail->setFrom('nordenf21@gmail.com', 'Tronbitorlo');
+                $mail->addAddress($email, $charname);
+
+                // Content
+                $mail->Subject = $targy;
+                $mail->Body    = <<<EOT
+                $szoveg
+                EOT;
+
+                $mail->send();
+                
+                file_put_contents('email-reg.html', $szoveg);
+//                    mail($email, $targy, $szoveg, emailFejlec());
+
+
+                header("Location: index.php?uzenet=modsuccess1&feladat=logout");
+                exit();
+            }
+
             $_SESSION['knev'] = $charname;
             $_SESSION['email'] = $email;
             $_SESSION['ktortenet'] = $regCharstory;
             $_SESSION['charimg'] = $charImg;
-            
+
             header("Location: index.php?uzenet=modsuccess");
             exit();
         }
@@ -237,12 +358,17 @@ include_once 'const.php';
     if ($feladat === 'sendComment')
     {
        
-        if((string)$puid === $_SESSION['uid'] && !empty(trim($pcomment)))
+        if(!empty(trim($pcomment)))
         {
+            
             $dbc->begin_transaction();
             
+            $nowTime = new DateTime();
+            $europeTZ = new DateTimeZone('+1:00');
+            $nowTime->setTimezone($europeTZ);
+            
             $dbc->query('update jatekter set jmsgid = jmsgid + 1 order by jmsgid desc;');
-            $dbc->query("insert into jatekter (jmsgid, uid, charmsg) values (1, $puid, '$pcomment');");
+            $dbc->query("insert into jatekter (jmsgid, uid, charmsg, beginDate) values (1, ". $_SESSION['uid'] . ", '$pcomment', '" . $nowTime->format('Y-m-d H:i:s') . "');");
             $dbc->query('delete from jatekter where jmsgid > 30;');
             
             $sql = "select beginDate from jatekter where jmsgid = 1";
@@ -252,29 +378,75 @@ include_once 'const.php';
             $result = mysqli_query($dbc, $sql);
             list($secondUid, $secondDate) = mysqli_fetch_row($result);
             $trononDate = new DateTime($trononDate);
-            $secondDate = new DateTime($secondDate);
-            $diff = $secondDate->diff($trononDate);
-            $seconds = $diff->s;
-            $minutes = $diff->i;
-            $hours = $diff->h;
-            $days = $diff->d;
-            $plusProgress = $seconds + 60*$minutes + 60*60*$hours + 60*60*24*$days;
-            $dbc->query("update userek set weeklyProgress = weeklyProgress + $plusProgress where uid = " . $secondUid);
+            if(isset($secondUid))
+            {
+                $secondDate = new DateTime($secondDate);
+                $diff = $secondDate->diff($trononDate);
+                $seconds = $diff->s;
+                $minutes = $diff->i;
+                $hours = $diff->h;
+                $days = $diff->d;
+                $plusProgress = $seconds + 60*$minutes + 60*60*$hours + 60*60*24*$days;
+                $dbc->query("update userek set weeklyProgress = weeklyProgress + $plusProgress where uid = " . $secondUid);
+            }
             
             $dbc->commit();
             
+            //Logfájl
+            
+            $logFileName = 'logs/jatekter/LOG_' . date_format($trononDate, 'Y_m_d') . '.txt';
+            if(is_file($logFileName) && is_writable($logFileName)) 
+            {
+                file_put_contents($logFileName, date_format($trononDate, 'H:i:s') . ' - ' . $_SESSION['knev'] .': ' . $pcomment . PHP_EOL, FILE_APPEND);
+            } else
+            {
+                file_put_contents($logFileName, date_format($trononDate, 'H:i:s') . ' - ' . $_SESSION['knev'] .': ' . $pcomment . PHP_EOL);
+            }
             
             
-            echo createMessagesJSON($dbc);
         }
-        
-            
-            
+        echo createMessagesJSON($dbc);
     }
     
-    if($feladat === 'getCommentList')
+    if($feladat === 'sendKocsmaComment')
+    {
+        if(!empty(trim($pcomment)))
+        {
+            $dbc->begin_transaction();
+            
+            $aktDate = new DateTime();
+            $europeTZ = new DateTimeZone('+1:00');
+            $aktDate->setTimezone($europeTZ);
+            $dbc->query('update kocsma set kmsgid = kmsgid + 1 order by kmsgid desc;');
+                    $dbc->query("insert into kocsma (kmsgid, uid, kocsmamsg, kocsmaDate) values (1, ". $_SESSION['uid'] . ", '$pcomment', '". date_format($aktDate, 'H:i:s') ."');");
+            $dbc->query('delete from kocsma where kmsgid > 40;');
+
+            $dbc->commit();
+            
+            
+            //Logfájl
+            
+                    $logFileName = 'logs/kocsma/LOG_' . date_format($aktDate, 'Y_m_d') . '.txt';
+            if(is_file($logFileName) && is_writable($logFileName)) 
+            {
+                file_put_contents($logFileName, date_format($aktDate, 'H:i:s') . ' - ' . $_SESSION['knev'] .': ' . $pcomment . PHP_EOL, FILE_APPEND);
+            } else
+            {
+                file_put_contents($logFileName, date_format($aktDate, 'H:i:s') . ' - ' . $_SESSION['knev'] .': ' . $pcomment . PHP_EOL);
+            }
+            
+        }
+        echo createKocsmaMessagesJSON($dbc);
+    }
+    
+    if($feladat === 'getJatekCommentList')
     {
         echo createMessagesJSON($dbc);
+    }
+    
+    if($feladat === 'getKocsmaCommentList')
+    {
+        echo createKocsmaMessagesJSON($dbc);
     }
     
     
@@ -290,4 +462,3 @@ include_once 'const.php';
     }
 
 ?>
-

@@ -1,7 +1,5 @@
-var charname = document.getElementsByClassName("mycharname");
-
-var elem = new String();
 var fileName = location.pathname.split("/").slice(-1);
+var timerWatcher;
 
 class Comment {
     constructor(knev, charimg, beginDate, charmsg)
@@ -13,25 +11,29 @@ class Comment {
     }
 }
 
+class KocsmaComment {
+    constructor(knev, kTime, kocsmamsg)
+    {
+        this.knev = knev;
+        this.kTime = kTime;
+        this.kocsmamsg = kocsmamsg;
+    }
+}
+
 var commentList = new Array();
+var kocsmaCommentList = new Array();
 
+ function colorPicker(letter)
+{
+    let colorArr = ['blueviolet', 'brown', 'darkgreen', 'darkmagenta', 'navy', 'darkred', 'darkorange', 'mediumpurple'];
+    let charNumber = letter.toLowerCase().charCodeAt(0) - 97;
 
-
-if (typeof(charname) === Array) {
-    elem = charname[0].firstChild.textContent;
+    return colorArr[charNumber % colorArr.length];
 }
-else {
-    elem = charname;
-}
-
-//console.log(elem);
-
-
 
 if(String(fileName) === 'regisztracio.php' ||  String(fileName) === 'karaktermod.php')
 {
     var regCharImg = document.getElementById('regCharImg');
-
 
     document.getElementById("radioContainer").addEventListener('click', function (event) {
         if (event.target && event.target.matches("input[type='radio']")) {
@@ -95,10 +97,25 @@ function getDateDiff(date1, date2) {
         }
         
         return diffTime;
-        
 }
 
-function displayComments (column) {
+function displayComments (column, mode, timerStatus) {
+
+    let commentCont = document.getElementsByClassName('comment-container')[0];
+
+    let pagi = document.getElementsByClassName('pagination')[0];
+    
+    if(mode === 'local')
+    {
+        commentCont.style.visibility = 'hidden';
+        commentCont.style.opacity = '0';
+        pagi.style.visibility = 'hidden';
+        pagi.style.opacity = '0';
+    }
+    
+    let timeOutDuration = timerStatus === 'tooEarly' ? 500 : 0;
+    
+    setTimeout( function (){
     let commentContainer = document.getElementsByClassName('comment-container')[0];
     let htmlText = '';
     if(column === 1)
@@ -121,7 +138,6 @@ function displayComments (column) {
         }
         
         
-//        let trononTime = Math.Abs(getTime(currentDateTime) - getTime(charDateTime)) / 1000;
         let chartime = i === 0 ? getDateDiff(currentDateTime.getTime(), charDateTime.getTime()) : getDateDiff(prevDateTime.getTime(), charDateTime.getTime());
         if (chartime === '')
         {
@@ -129,21 +145,22 @@ function displayComments (column) {
         }
 
         let kiegeszites = i === 0 ? ' tronon' : '';
-        htmlText += '<div class="comment'+ kiegeszites +'"><img class="img-avatar" src="Images/Avatar/'+commentList[i].charimg+
+        htmlText += '<div class="comment'+ kiegeszites +'"><img class="img-avatar" src="images/avatar/'+commentList[i].charimg+
                 '"><a class="knevLink" href="karakter.php?knev='+commentList[i].knev+
                 '"><span class="charname">'+commentList[i].knev+'</span></a><span class="chartime">'+chartime+
                 '</span><p class="charmsg">'+commentList[i].charmsg+'</p></div>';
     }
     commentContainer.innerHTML = htmlText;
     
+    
     let clickedPageBtn = document.querySelector('.pagination a:nth-child('+column+')');
     let attr = document.createAttribute("class");
     attr.value = 'active';
     clickedPageBtn.setAttributeNode(attr);
     clickedPageBtn.removeAttribute('onclick');
-    
+
     let buttons = document.querySelectorAll('.pagination a');
-    
+
     for (let i = 0; i < buttons.length; i++)
     {
         let button = buttons.item(i);
@@ -153,10 +170,60 @@ function displayComments (column) {
             if(!button.hasAttribute('onclick'))
             {
                let attr = document.createAttribute('onclick');
-               attr.value = 'displayComments('+ (i + 1) +')';
+               attr.value = 'displayComments('+ (i + 1) +', "local", "tooEarly")';
                button.setAttributeNode(attr);
             }
         }
     }
+    if(mode !== 'local')
+    {
+        let pageNumber = Math.ceil(commentList.length / 10);
+        let pagiNumber = (document.querySelectorAll('.pagination a')).length;
+        let pagi = document.getElementsByClassName('pagination');
+        
+        if(pagiNumber < pageNumber)
+        {
+            for (let i = pagiNumber + 1; i <= pageNumber; i++)
+            {
+                let newPagi = document.createElement('a');
+                newPagi.innerHTML = i;
+                newPagi.setAttribute('onclick', "displayComments("+ i +", 'local', 'tooEarly')");
+                pagi[0].appendChild(newPagi);
+            }
+        }
+        
+        
+    }
+    }, timeOutDuration);
+    
+    setTimeout(function () {
+    
+    commentCont.style.visibility = 'visible';
+    commentCont.style.opacity = '1';
+    }, 500);
+    
+    setTimeout ( function() {
+    let neededHeight = commentCont.scrollHeight;
+    let commentMove = document.getElementById('comment-move');
+    commentMove.style.height = neededHeight + 'px';
+    }, 550);
+    
+    setTimeout(function () {
+        pagi.style.visibility = 'visible';
+        pagi.style.opacity = '1';
+    }, 700);
+    
+}
+
+function displayKocsma() {
+    let chatbox = document.getElementById('chatbox');
+    let outputText = '';
+    
+    for(let i = kocsmaCommentList.length - 1; i >= 0; i--)
+    {
+        outputText += kocsmaCommentList[i].kTime + ' - <span style="color:'+ colorPicker(kocsmaCommentList[i].knev.charAt(0)) +'">' + kocsmaCommentList[i].knev + '</span>: ' + kocsmaCommentList[i].kocsmamsg + '<br>';
+    }
+    
+    chatbox.innerHTML = outputText;
 }
 

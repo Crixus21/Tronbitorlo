@@ -5,40 +5,14 @@
   </div>
   <div class="footer-links">
     <ul>
-      <li><a href="" target="_parent">Miről szól a játék/FAQ</a></li>
-      <li><a href="" target="_parent">Linkek</a></li>
-      <li><a href="" target="_parent">Contact</a></li>
-      
+      <li><a href="faq.php">Miről szól a játék/FAQ</a></li>
+      <li><a href="linkek.php">Linkek</a></li>
+      <li><a href="impresszum.php">Impresszum</a></li>
     </ul>
   </div>
 </div>
-<!--    <script>
-        
-        document.addEventListener('readystatechange', event => { 
-
-    // When window loaded ( external resources are loaded too- `css`,`src`, etc...) 
-    if (event.target.readyState === "complete") {
-    var logo = document.getElementById('logoimg');
-    var logow = logo.clientWidth;
-    let uzenet = document.getElementById('uzenet');
-    uzenet.innerHTML = logow + ' a szélesség';
-    }
-    });
-        
-    
-</script>  -->
 </body>
 
-<?php 
-    if(loggedIn())
-    {
-?>
-<script>
-var selfuid = <?php echo $_SESSION['uid']; ?>;
-</script>
-<?php
-    }
-?>
 <script src="scripts.js"></script>
 <?php
     if(aktFajlnev() === 'regisztracio')
@@ -48,17 +22,19 @@ var selfuid = <?php echo $_SESSION['uid']; ?>;
 <?php
     }
 ?>
-
 <?php
     if(aktFajlnev() === 'jatekterem')
     {
 ?>
-
-<script src="Ajax_jatekterem.js"></script>
-
-<script>
-    refreshCommentList();
-</script>
+<script src="Ajax.js"></script>
+<script>refreshCommentList('jatekter', '', 'tooEarly');</script>
+<?php
+    }
+    if(aktFajlnev() === 'kocsma')
+    {
+?>
+<script src="Ajax.js"></script>
+<script src="kocsma.js"></script>
 <?php
     }
 ?>

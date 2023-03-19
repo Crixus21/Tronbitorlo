@@ -1,5 +1,4 @@
 :root {
-	/*rgba(248, 255, 203, 0.781)*/
 	--content-backgrd: white;
 	--border-color: rgba(70, 52, 20, 0.7);
         --layout-color1: rgba(22, 43, 90, 1);
@@ -10,15 +9,12 @@
     box-sizing: border-box;
 }
 
-
 body {
 	background-color: #fff;
 	width: 100%;
 	margin: 0;
 	padding: 0;
 	height: 100%;
-        
-	
 }
 
 /*menu*/
@@ -34,8 +30,6 @@ ul.menusor {
 	
 	height: 3.5rem;
 }
-
-
 
 #bitijel {
 	height:inherit;
@@ -88,8 +82,6 @@ ul.menusor {
 	width:auto;
 }
 
-
-
 .menupontok {
 	margin-left: auto;
 	float:right;
@@ -108,7 +100,6 @@ ul.menusor {
 	font-weight: bold;
 	font-family: Arial;
 	font-size: 20px;
-	
 }
 
 .menupontok > li > a{
@@ -117,11 +108,7 @@ ul.menusor {
 	align-items: center;
 	padding-left: 1rem;
 	padding-right: 1rem;
-	
-	
 }
-
-
 
 .menupontok a:link, .menupontok a:visited{
 	text-decoration: none;
@@ -134,7 +121,6 @@ ul.menusor {
 	/*border-color: #209b9b96;*/
 	/*color: rgba(121, 202, 121, 0.808);*/
 	text-shadow: none;
-	
 }
 
 .menupontok::after {
@@ -150,7 +136,7 @@ ul.menusor {
 .alert {
     width: 100%;
     height: fit-content;
-    background-color: #87FF7F;
+    background-color: #73ff73;
     border-bottom: grey 1px solid;
     padding:.5rem;
     display: flex;
@@ -163,7 +149,6 @@ ul.menusor {
 
 .close-alert {
     margin: 0 .5rem 0 auto;
-    /*margin: .2rem .2rem .2rem auto;*/
     display: block;
     
     width: 20px;
@@ -187,13 +172,10 @@ ul.menusor {
 	max-width:100%;
 	background-color: rgba(216, 211, 135, 0.945);
 	padding-bottom:1rem;
-	
 	position:relative;
-	
 }
 
 .charlink {
-	
 	height:1.8rem;
 	display:flex;
 	flex-direction: row;
@@ -215,13 +197,11 @@ ul.menusor {
 .charlink .img-avatar {
 	height:1.3em;
 	width:auto;
-	
 }
 
 .charlink .mycharname {
 	display:inline;
 	margin: 0 0.8rem;
-	
 }
 
 .exitbtn {
@@ -250,6 +230,12 @@ ul.menusor {
 }
 
 /*center-content*/
+
+.center-content.full {
+    width: 100%;
+    flex: 100%;
+    max-width: 100%;
+}
 
 .center-content {
 	display:flex;
@@ -280,13 +266,47 @@ ul.menusor {
 	mask-image: linear-gradient(to right, black 40%, transparent);
 }
 
+.center-content article.describe {
+    min-height: 50vh;
+    padding: 1rem;
+/*    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: start;
+    justify-content: flex-start;*/
+
+}
+
+.center-content article.describe.faq p {
+    text-indent: 1rem;
+}
+
+
+.center-content article.describe p {
+    margin: 0;
+}
+
+.describe.faq img{
+    flex: 40%;
+    padding:2rem 0 1rem 1rem;
+    max-width:40%;
+    height:auto;
+    align-self: flex-start;
+}
+
+textarea {
+    font-family: 'times new roman', Times, serif;
+}
+
+.faq-container {
+     max-width: 60%;
+}
+
 .center-content article {
 	display: flex;
 	margin-bottom: 2rem;
 	background-color: var(--content-backgrd);
 	border-radius: 8px;
 	box-shadow: 3px 3px 5px rgba(172, 167, 107, 0.945);
-        
 }
 
 .center-content article:last-of-type {
@@ -306,27 +326,25 @@ time {
 	width:100%;
 	height:fit-content;
 	padding:1rem;
-        
 }
 
 .cikkely p {
 	text-align:justify;
+        text-indent: 1rem;
 }
 
 .cikkely p:first-of-type {
 	margin-top:2rem;
 }
 
-.center-content.index article img {
+.center-content.index article img{
 	float:right;
 	padding:2rem 0 1rem 1rem;
-	max-height: auto;
 	max-width: 100%;
 	min-width:150px;
 	min-height:0px;
 	width:40%;
 	height:auto;
-        
 }
 
 .tooltip {
@@ -341,15 +359,11 @@ time {
     top: 125%;
     left: 50%;
     transform: translateX(-50%);
-    
-    
 }
 
 .exitLink:hover ~ .tooltip {
     visibility: visible;
 }
-
-
 
 /*right-content*/
 
@@ -363,12 +377,9 @@ time {
 	min-height:100%;
 	flex:25%;
 	max-width: 25%;
-        
-        
 }
 
 .right-content::before {
-	
 	content:"";
 	position:absolute;
 	left:0;
@@ -379,7 +390,6 @@ time {
 	background:var(--border-color);
 	background-clip:content-box;
         box-sizing: border-box;
-	
 }
 
 .right-content h3:first-of-type {
@@ -393,7 +403,6 @@ time {
 	padding-bottom: 1rem;
 	border-bottom: 1px var(--border-color);
 	border-bottom-style: solid;
-
 }
 
 .rc-container {
@@ -408,8 +417,6 @@ time {
 fieldset {
 	padding:1rem;
 	border-color: var(--border-color);
-        
-        
 }
 
 #bejelentkezes input[type='text'], #bejelentkezes input[type='password'] {
@@ -421,7 +428,6 @@ fieldset {
 
 .gomb.regisztracio {
     background-color: #393646 !important;
-
 }
 
 [type="submit"], .gomb {
@@ -439,7 +445,6 @@ fieldset {
 .gomb:hover, .gomb:active {
     background-color: #282530 !important;
 }
-
 
 [type='submit']:hover, [type='submit']:active  {
     background-color: var(--layout-color2) !important;
@@ -479,9 +484,7 @@ fieldset {
 	background-color: rgb(51, 36, 9);
 	display: grid;
 	grid-template-columns: 50% 50%;
-	
 	color:white;
-	
 }
 
 .footer-license > p {
@@ -489,7 +492,6 @@ fieldset {
 	margin-left: 3rem;
 	padding: 1rem;
 	display: flex;
-	
 }
 
 .footer-links {
@@ -513,7 +515,6 @@ fieldset {
 	column-gap:3rem;
 	margin:1rem;
 	padding:0;
-	
 }
 
 .footer-links a:link, .footer-links a:visited {
@@ -527,7 +528,6 @@ fieldset {
 
 .footer-links > ul > li {
 	padding: 0.2rem;
-	
 }
 
 /*regisztracio*/
@@ -547,7 +547,6 @@ fieldset {
 
 #regisztracioForm {
     width: 20rem;
-    
 }
 
 #regisztracioForm input[type='text'], #regisztracioForm input[type='email'], #regisztracioForm input[type='password'] {
@@ -583,7 +582,6 @@ fieldset {
     flex-wrap: wrap;
     max-width:100%;
     overflow-y: scroll;
-    
     align-items:flex-end;
 }
 
@@ -616,17 +614,12 @@ fieldset {
     margin: 0;
 }
 
-
 /*media queries*/
 
 @media (min-width:601px) {
-
 	#Menubar {
 		display:none;
 	}
-
-	
-
 }
 
 @media (max-width:500px) {
@@ -649,11 +642,6 @@ fieldset {
     #regisztracioForm {
         width:100%;
     }
-        
-
-    
-    
-    
 }
 
 @media screen and (max-width:1000px) {
@@ -668,10 +656,6 @@ fieldset {
                 float:left;
                 margin-left:0;
 	}
-        
-
-        
-        
 
 	.side-menu {
 		display:none;
@@ -688,11 +672,7 @@ fieldset {
 		margin-left:auto;
 		align-self:center;
                 padding:0.5rem 0;
-               
-                
-                
 	}
-        
         
 	ul.menusor {
 		display:flex;
@@ -713,8 +693,6 @@ fieldset {
 		cursor:pointer;
 		display:block;
 		padding:5px 0;
-                
-		
 	}
 
 	.menu-btn-line::before, .menu-btn-line::after {
@@ -775,7 +753,6 @@ fieldset {
 		height:auto;
 	}
 
-	
 	.center-content, .right-content {
 		max-width:100%;
 		flex:100%;

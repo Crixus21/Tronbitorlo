@@ -1,0 +1,4 @@
+<?php exit; ?>
+1709113294
+892
+a:7:{s:32:"1ca84854d97e0bdb8caa71960421ebe3";a:0:{}s:32:"fb8d6a9fce788c3bf9b5336bc52e31ae";a:0:{}s:32:"c490823026f22ea5a4e3c520f85eb7ad";a:0:{}s:32:"d02806c98648acbc3e4c04be69a4e244";a:1:{i:0;a:4:{s:10:"named_path";s:50:"ext/phpbb/viglink/language/en/info_acp_viglink.php";s:8:"ext_name";s:13:"phpbb/viglink";s:4:"path";s:30:"ext/phpbb/viglink/language/en/";s:8:"filename";s:20:"info_acp_viglink.php";}}s:32:"4ebd2ba8c55128ea8e0cdeab003a10b2";a:2:{i:0;a:4:{s:10:"named_path";s:37:"language/en/acp/permissions_phpbb.php";s:8:"ext_name";s:1:"/";s:4:"path";s:16:"language/en/acp/";s:8:"filename";s:21:"permissions_phpbb.php";}i:1;a:4:{s:10:"named_path";s:37:"language/hu/acp/permissions_phpbb.php";s:8:"ext_name";s:1:"/";s:4:"path";s:16:"language/hu/acp/";s:8:"filename";s:21:"permissions_phpbb.php";}}s:32:"90fd0ec19919914bf130c795d3e5a1a0";a:0:{}s:32:"0d47a9bd48f85126d4a6de772998c56e";a:0:{}}
